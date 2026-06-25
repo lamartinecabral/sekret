@@ -1,12 +1,12 @@
 {
-  "name": "crytop",
-  "version": "0.2.0",
+  "name": "@lamartinecabral/sekret",
+  "version": "1.0.0-beta.1",
   "description": "A simple encryption tool powered by Web Crypto API",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lamartinecabral/crytop.git"
+    "url": "git+https://github.com/lamartinecabral/sekret.git"
   },
-  "homepage": "https://www.github.com/lamartinecabral/crytop",
+  "homepage": "https://www.github.com/lamartinecabral/sekret",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "exports": {

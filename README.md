@@ -1,4 +1,5 @@
-# Crytop
+# Sekret
+
 A simple encryption tool powered by [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
 
 # Installation
@@ -6,34 +7,34 @@ A simple encryption tool powered by [Web Crypto API](https://developer.mozilla.o
 In a browser:
 
 ```html
-<script src="https://unpkg.com/crytop"></script>
+<script src="https://unpkg.com/@lamartinecabral/sekret"></script>
 ```
 
 ```html
 <script type="module">
-  import Crytop from "https://unpkg.com/crytop/dist/crytop.esm.js";
+  import Sekret from "https://unpkg.com/@lamartinecabral/sekret";
 </script>
 ```
 
 Using npm:
 
 ```sh
-$ npm install crytop
+npm install @lamartinecabral/sekret
 ```
 
 # Usage example
 
 ```js
-import Crytop from "crytop";
+import Sekret from "@lamartinecabral/sekret";
 
 (async () => {
   const message = "Hello World!";
   const password = "1234";
-  
-  const encrypted = await Crytop.encrypt(message, password);
+
+  const encrypted = await Sekret.encrypt(message, password);
   console.log(encrypted); // WYCn8qIJNoNlVU0pV/LuDg==
 
-  const decrypted = await Crytop.decrypt(encrypted, password);
+  const decrypted = await Sekret.decrypt(encrypted, password);
   console.log(message === decrypted); // true
-})()
+})();
 ```
