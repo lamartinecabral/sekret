@@ -3,7 +3,7 @@ const fs = require("fs");
 const pkg = require("../package.json");
 const { argv } = require("process");
 
-const file = "src/crytop.ts";
+const file = "src/index.ts";
 
 const operation = argv[2] === "down" ? "down" : "up";
 

@@ -1,12 +1,13 @@
 // @ts-check
 const fs = require("fs");
+const pkg = require("../package.json");
 const { argv } = require("process");
-const capitalizeFirst = (str) => {
+const capitalizeFirst = (str = "") => {
   return str[0].toUpperCase() + str.slice(1);
 };
 
 const umdfile = argv[2];
-const umdname = capitalizeFirst(umdfile.split("/").pop()?.split(".")[0]);
+const umdname = capitalizeFirst(pkg.name.split("/").pop());
 
 const script = fs.readFileSync(umdfile).toString();
 

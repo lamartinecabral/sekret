@@ -7,11 +7,11 @@
     "url": "git+https://github.com/lamartinecabral/crytop.git"
   },
   "homepage": "https://www.github.com/lamartinecabral/crytop",
-  "main": "./dist/crytop.js",
-  "typings": "./dist/crytop.d.ts",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
   "exports": {
-    "require": "./dist/crytop.js",
-    "import": "./dist/crytop.esm.js"
+    "require": "./dist/index.js",
+    "import": "./dist/index.esm.js"
   },
   "files": [
     "dist"
@@ -19,8 +19,8 @@
   "scripts": {
     "test": "node scripts/test.js",
     "prepack": "node scripts/setversion.js up && npm start && node scripts/setversion.js down",
-    "start:main": "tsc -d -m umd --outDir dist && node scripts/fixumd.js dist/crytop.js",
-    "start:module": "tsc -m esnext && mv src/crytop.js dist/crytop.esm.js && cp dist/crytop.d.ts dist/crytop.esm.d.ts",
+    "start:main": "tsc -d -m umd --outDir dist && node scripts/fixumd.js dist/index.js",
+    "start:module": "tsc -m esnext && mv src/index.js dist/index.esm.js && cp dist/index.d.ts dist/index.esm.d.ts",
     "start": "npm run start:main && npm run start:module"
   },
   "devDependencies": {

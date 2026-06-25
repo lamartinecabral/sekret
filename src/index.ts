@@ -1,4 +1,4 @@
-class Crytop {
+class Sekret {
   generateKey;
   encrypt;
   decrypt;
@@ -22,7 +22,7 @@ class Crytop {
         new TextEncoder().encode(password),
         { name: "PBKDF2" },
         false,
-        ["deriveKey"]
+        ["deriveKey"],
       );
 
       return crypto.subtle.deriveKey(
@@ -35,7 +35,7 @@ class Crytop {
         keyMaterial,
         constants.keyAlgorithm,
         true,
-        ["encrypt", "decrypt"]
+        ["encrypt", "decrypt"],
       );
     };
 
@@ -51,7 +51,7 @@ class Crytop {
       const ciphertext = await crypto.subtle.encrypt(
         { name, iv: new Uint8Array(16) },
         passwordKey,
-        messageEncoded
+        messageEncoded,
       );
 
       const bytes = new Uint8Array(ciphertext);
@@ -61,7 +61,7 @@ class Crytop {
 
     this.decrypt = async (
       encryptedMessage: string,
-      password: string | CryptoKey
+      password: string | CryptoKey,
     ) => {
       const { name } = constants;
       const passwordKey =
@@ -76,7 +76,7 @@ class Crytop {
       const messageEncoded = await crypto.subtle.decrypt(
         { name, iv: new Uint8Array(16) },
         passwordKey,
-        cyphertext
+        cyphertext,
       );
 
       return new TextDecoder().decode(messageEncoded);
@@ -84,16 +84,16 @@ class Crytop {
   }
 }
 
-const crytop = new Crytop();
+const sekret = new Sekret();
 
-export const encrypt: typeof crytop.encrypt = (...args) => {
-  return crytop.encrypt(...args);
+export const encrypt: typeof sekret.encrypt = (...args) => {
+  return sekret.encrypt(...args);
 };
-export const decrypt: typeof crytop.decrypt = (...args) => {
-  return crytop.decrypt(...args);
+export const decrypt: typeof sekret.decrypt = (...args) => {
+  return sekret.decrypt(...args);
 };
-export const generateKey: typeof crytop.generateKey = (...args) => {
-  return crytop.generateKey(...args);
+export const generateKey: typeof sekret.generateKey = (...args) => {
+  return sekret.generateKey(...args);
 };
 export const version: string = "";
 

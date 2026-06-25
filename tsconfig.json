@@ -1,5 +1,5 @@
 {
-  "files": ["src/crytop.ts"],
+  "files": ["src/index.ts"],
   "compilerOptions": {
     "strict": true,
     "target": "esnext"
