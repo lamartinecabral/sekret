@@ -1,7 +1,7 @@
 {
   "name": "@lamartinecabral/sekret",
   "version": "1.0.0",
-  "description": "A simple encryption tool powered by Web Crypto API",
+  "description": "A tiny wrapper for password-based encryption and decryption.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lamartinecabral/sekret.git"
