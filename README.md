@@ -1,12 +1,11 @@
 # Sekret
 
-Sekret is a small wrapper around the [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) for password-based AES-CBC encryption and decryption.
+Sekret is a small wrapper around the [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) for password-based encryption and decryption.
 
 It exposes a minimal API:
 
-- `encrypt(message, passwordOrKey)`
-- `decrypt(encryptedMessage, passwordOrKey)`
-- `generateKey(password)`
+- `encrypt(message, password)`
+- `decrypt(encryptedMessage, password)`
 - `version`
 
 ## Installation
@@ -46,6 +45,17 @@ Sekret depends on Web Crypto globals such as `crypto.subtle`, `TextEncoder`, `Te
 - Modern browsers are supported.
 - Recent Node.js versions with Web Crypto support are supported.
 
+## How it works
+
+Sekret derives a 256-bit AES-GCM key from the provided password using PBKDF2 with SHA-256.
+
+For each encryption call it generates:
+
+- a random 16-byte salt
+- a random 12-byte IV
+
+The returned string is a Base64 payload containing `salt + iv + ciphertext`, so the output is self-contained and can be passed directly to `decrypt` together with the same password.
+
 ## Basic usage
 
 You can use the default export:
@@ -72,54 +82,31 @@ const encrypted = await encrypt("Hello World!", "1234");
 const decrypted = await decrypt(encrypted, "1234");
 ```
 
-## Reusing a derived key
-
-If you need to encrypt or decrypt multiple values with the same password, derive the key once and reuse it.
-
-```js
-import { decrypt, encrypt, generateKey } from "@lamartinecabral/sekret";
-
-const key = await generateKey("1234");
-
-const encryptedName = await encrypt("Ada", key);
-const encryptedRole = await encrypt("Engineer", key);
-
-console.log(await decrypt(encryptedName, key));
-console.log(await decrypt(encryptedRole, key));
-```
-
 ## API
 
-### `encrypt(message, passwordOrKey)`
+### `encrypt(message, password)`
 
-Encrypts a UTF-8 string and returns a Base64-encoded ciphertext string.
+Encrypts a UTF-8 string and returns a Base64-encoded payload.
 
 - `message`: `string`
-- `passwordOrKey`: `string | CryptoKey`
+- `password`: `string`
 - returns: `Promise<string>`
 
-### `decrypt(encryptedMessage, passwordOrKey)`
+The payload includes the random salt and IV required for decryption.
 
-Decrypts a Base64-encoded ciphertext string produced by Sekret.
+### `decrypt(encryptedMessage, password)`
+
+Decrypts a Base64-encoded payload produced by Sekret.
 
 - `encryptedMessage`: `string`
-- `passwordOrKey`: `string | CryptoKey`
+- `password`: `string`
 - returns: `Promise<string>`
 
-### `generateKey(password)`
-
-Derives an AES-CBC `CryptoKey` from a password using PBKDF2.
-
-- `password`: `string`
-- returns: `Promise<CryptoKey>`
+Throws if the password is wrong or the payload is invalid/corrupted.
 
 ### `version`
 
 Exposes the package version injected during packaging.
-
-## Security note
-
-Sekret derives keys with a fixed salt and encrypts with a fixed IV, so the same input and password always produce the same ciphertext. Use it as a lightweight utility or learning tool, not for serious security-sensitive use cases.
 
 ## Development
 
