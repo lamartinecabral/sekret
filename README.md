@@ -49,10 +49,12 @@ Sekret depends on Web Crypto globals such as `crypto.subtle`, `TextEncoder`, `Te
 
 Sekret derives a 256-bit AES-GCM key from the provided password using PBKDF2 with SHA-256.
 
-For each encryption call it generates:
+For each encryption call it uses:
 
-- a random 16-byte salt
-- a random 12-byte IV
+- a fixed 16-byte salt
+- a deterministic 12-byte IV derived from the message
+
+This makes encryption deterministic: the same message encrypted with the same password produces the same output.
 
 The returned string is a Base64 payload containing `salt + iv + ciphertext`, so the output is self-contained and can be passed directly to `decrypt` together with the same password.
 
@@ -92,7 +94,7 @@ Encrypts a UTF-8 string and returns a Base64-encoded payload.
 - `password`: `string`
 - returns: `Promise<string>`
 
-The payload includes the random salt and IV required for decryption.
+The payload includes the fixed salt and deterministic IV required for decryption. Encrypting the same message with the same password returns the same payload.
 
 ### `decrypt(encryptedMessage, password)`
 
