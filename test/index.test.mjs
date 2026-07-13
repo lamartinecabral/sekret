@@ -68,6 +68,57 @@ describe("Sekret", () => {
     assert.notStrictEqual(firstEncryptedMessage, thirdEncryptedMessage);
   });
 
+  it("does not use a constant packet prefix for deterministic messages", async () => {
+    const password = "my-secret-password";
+    const firstEncryptedMessage = await encrypt("first message", password, {
+      deterministic: true,
+    });
+    const secondEncryptedMessage = await encrypt("second message", password, {
+      deterministic: true,
+    });
+
+    const firstPacketPrefix = Buffer.from(
+      firstEncryptedMessage,
+      "base64",
+    ).subarray(0, 16);
+    const secondPacketPrefix = Buffer.from(
+      secondEncryptedMessage,
+      "base64",
+    ).subarray(0, 16);
+
+    assert.notDeepStrictEqual(firstPacketPrefix, secondPacketPrefix);
+  });
+
+  it("does not reuse ciphertext prefixes for deterministic messages with a shared prefix", async () => {
+    const password = "my-secret-password";
+    const firstEncryptedMessage = await encrypt(
+      "shared prefix: first",
+      password,
+      {
+        deterministic: true,
+      },
+    );
+    const secondEncryptedMessage = await encrypt(
+      "shared prefix: second",
+      password,
+      { deterministic: true },
+    );
+
+    const firstCiphertext = Buffer.from(
+      firstEncryptedMessage,
+      "base64",
+    ).subarray(28);
+    const secondCiphertext = Buffer.from(
+      secondEncryptedMessage,
+      "base64",
+    ).subarray(28);
+
+    assert.notDeepStrictEqual(
+      firstCiphertext.subarray(0, 16),
+      secondCiphertext.subarray(0, 16),
+    );
+  });
+
   it("round trips empty and Unicode messages", async () => {
     for (const message of ["", "Hello, 世界! cafe\u0301"]) {
       const encryptedMessage = await encrypt(message, "my-secret-password");

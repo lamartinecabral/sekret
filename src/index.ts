@@ -44,6 +44,31 @@ function base64ToBuffer(base64: string): Uint8Array {
   return buffer;
 }
 
+// Helper: to XOR two Uint8Arrays of the same length
+function xorArrays(a: Uint8Array, b: Uint8Array): Uint8Array<ArrayBuffer> {
+  const res = new Uint8Array(a.length);
+  for (let i = 0; i < a.length; i++) {
+    res[i] = a[i] ^ b[i];
+  }
+  return res;
+}
+
+/**
+ * Obfuscates or deobfuscates the salt using the IV.
+ * Because XOR is symmetric, the same function works for both directions.
+ */
+async function processSalt(salt: Uint8Array, iv: Uint8Array) {
+  // Hash the IV using SHA-256 to create a pseudo-random mask
+  const ivHashBuffer = await crypto.subtle.digest("SHA-256", iv);
+  const ivHash = new Uint8Array(ivHashBuffer);
+
+  // Take only the bytes we need to match the salt length (e.g., 16 bytes)
+  const mask = ivHash.slice(0, salt.length);
+
+  // XOR the salt with the mask
+  return xorArrays(salt, mask);
+}
+
 // A fixed, static salt used to ensure deterministic key derivation
 const STATIC_SALT = new Uint8Array([
   ...[0x44, 0x65, 0x74, 0x65, 0x72, 0x6d, 0x69, 0x6e],
@@ -96,7 +121,7 @@ export async function encrypt(
   const combinedBuffer = new Uint8Array(
     salt.length + iv.length + ciphertext.length,
   );
-  combinedBuffer.set(salt, 0);
+  combinedBuffer.set(await processSalt(salt, iv), 0);
   combinedBuffer.set(iv, salt.length);
   combinedBuffer.set(ciphertext, salt.length + iv.length);
 
@@ -115,8 +140,9 @@ export async function decrypt(
   const combinedBuffer = base64ToBuffer(encryptedMessage);
 
   // Extract the individual components back out of the combined array
-  const salt = combinedBuffer.slice(0, 16);
+  const processedSalt = combinedBuffer.slice(0, 16);
   const iv = combinedBuffer.slice(16, 28);
+  const salt = await processSalt(processedSalt, iv);
   const ciphertext = combinedBuffer.slice(28);
 
   const key = await deriveKey(password, salt.buffer);
