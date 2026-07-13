@@ -1,6 +1,6 @@
 {
   "name": "@lamartinecabral/sekret",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "A tiny wrapper for password-based encryption and decryption.",
   "repository": {
     "type": "git",
@@ -19,9 +19,9 @@
   "scripts": {
     "test": "node --test",
     "prepack": "node scripts/setversion.js up && npm start && node scripts/setversion.js down",
-    "start:main": "tsc -d -m umd --outDir dist && node scripts/fixumd.js dist/index.js",
-    "start:module": "tsc -m esnext && mv src/index.js dist/index.esm.js && cp dist/index.d.ts dist/index.esm.d.ts",
-    "start": "npm install && npm run start:main && npm run start:module",
+    "build:umd": "tsc -d -m umd --outDir dist && node scripts/fixumd.js dist/index.js",
+    "build:esm": "tsc -m esnext && mv src/index.js dist/index.esm.js && cp dist/index.d.ts dist/index.esm.d.ts",
+    "start": "npm install && npm run build:umd && npm run build:esm",
     "tag": "v=$(node -p \"'v'+require('./package.json').version\") && git tag $v && git push origin $v"
   },
   "devDependencies": {

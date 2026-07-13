@@ -4,7 +4,7 @@ Sekret is a small wrapper around the [Web Crypto API](https://developer.mozilla.
 
 It exposes a minimal API:
 
-- `encrypt(message, password)`
+- `encrypt(message, password, options?)`
 - `decrypt(encryptedMessage, password)`
 - `version`
 
@@ -47,16 +47,18 @@ Sekret depends on Web Crypto globals such as `crypto.subtle`, `TextEncoder`, `Te
 
 ## How it works
 
-Sekret derives a 256-bit AES-GCM key from the provided password using PBKDF2 with SHA-256.
+Sekret derives a 256-bit AES-GCM key from the provided password using PBKDF2 with SHA-256. Each encrypted payload contains its salt, IV, and ciphertext, so it can be passed directly to `decrypt` together with the same password.
 
-For each encryption call it uses:
+By default, each encryption call generates:
 
-- a fixed 16-byte salt
-- a deterministic 12-byte IV derived from the message
+- a random 16-byte salt
+- a random 12-byte IV
 
-This makes encryption deterministic: the same message encrypted with the same password produces the same output.
+This randomized mode means encrypting the same message with the same password produces different output each time.
 
-The returned string is a Base64 payload containing `salt + iv + ciphertext`, so the output is self-contained and can be passed directly to `decrypt` together with the same password.
+Set `deterministic: true` when the same message and password must produce the same output. In that mode, Sekret uses a fixed 16-byte salt and a deterministic 12-byte IV derived from the message. Deterministic encryption can reveal when the same plaintext is encrypted repeatedly, so use the default randomized mode unless deterministic output is required.
+
+The returned value is a Base64 payload containing `salt + iv + ciphertext`.
 
 ## Basic usage
 
@@ -86,15 +88,26 @@ const decrypted = await decrypt(encrypted, "1234");
 
 ## API
 
-### `encrypt(message, password)`
+### `encrypt(message, password, options?)`
 
 Encrypts a UTF-8 string and returns a Base64-encoded payload.
 
 - `message`: `string`
 - `password`: `string`
+- `options.deterministic`: `boolean`, defaults to `false`
 - returns: `Promise<string>`
 
-The payload includes the fixed salt and deterministic IV required for decryption. Encrypting the same message with the same password returns the same payload.
+The payload includes the salt and IV required for decryption. By default, a random salt and IV are used, so encrypting the same message with the same password returns different payloads.
+
+To request deterministic encryption:
+
+```js
+const encrypted = await Sekret.encrypt("Hello World!", "1234", {
+  deterministic: true,
+});
+```
+
+With `deterministic: true`, encrypting the same message with the same password returns the same payload.
 
 ### `decrypt(encryptedMessage, password)`
 

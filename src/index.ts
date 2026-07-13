@@ -57,17 +57,29 @@ const STATIC_SALT = new Uint8Array([
 export async function encrypt(
   message: string,
   password: string,
+  options?: {
+    deterministic?: boolean;
+  },
 ): Promise<string> {
   const encoder = new TextEncoder();
   const messageBuffer = encoder.encode(message);
 
-  // 1. Use the static salt instead of a random one
-  const salt = STATIC_SALT;
+  let salt: Uint8Array<ArrayBuffer>;
+  let iv: Uint8Array<ArrayBuffer>;
 
-  // 2. Compute a deterministic IV by hashing the message.
-  // This achieves determinism while preventing AES-GCM key/IV reuse attacks.
-  const hashBuffer = await crypto.subtle.digest("SHA-256", messageBuffer);
-  const iv = new Uint8Array(hashBuffer).slice(0, 12); // AES-GCM requires a 12-byte IV
+  if (options?.deterministic) {
+    // 1. Use the static salt instead of a random one
+    salt = STATIC_SALT;
+
+    // 2. Compute a deterministic IV by hashing the message.
+    // This achieves determinism while preventing AES-GCM key/IV reuse attacks.
+    const hashBuffer = await crypto.subtle.digest("SHA-256", messageBuffer);
+    iv = new Uint8Array(hashBuffer).slice(0, 12); // AES-GCM requires a 12-byte IV
+  } else {
+    // Generate random salt (16 bytes) and initialization vector (12 bytes for AES-GCM)
+    salt = crypto.getRandomValues(new Uint8Array(16));
+    iv = crypto.getRandomValues(new Uint8Array(12));
+  }
 
   const key = await deriveKey(password, salt.buffer);
 
